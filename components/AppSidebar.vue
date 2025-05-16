@@ -12,8 +12,25 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { ref } from 'vue'
 
 const props = defineProps({
-  params: Object,
-  applyParams: Function
+  params: {
+    type: Object,
+    default: () => ({
+      circleCount: 2,
+      rotationMode: 'same',
+      circleColor: '#000000',
+      ballColor: '#ffffff',
+      initGap: 10,
+      ballRadius: 6,
+      circleWidth: 4,
+      rotateSpeed: 0.001,
+      gravity: 0.05,
+      gravityPower: 0.1
+    })
+  },
+  applyParams: {
+    type: Function,
+    default: () => {}
+  }
 })
 
 const emits = defineEmits(['update:devMode', 'update:showDebug'])
@@ -22,6 +39,24 @@ const showDebug = defineModel('showDebug', { type: Boolean, default: false })
 
 // Section active
 const activeSection = ref('general')
+
+// Helper function to handle input events
+function handleInput(event: Event, callback: Function) {
+  const target = event.target as HTMLInputElement;
+  if (target) {
+    callback(target.value);
+  }
+}
+
+// Helper function to handle click events
+function handleClick(event: MouseEvent, callback: Function) {
+  callback();
+}
+
+// Wrapper function for Select's update:modelValue
+function handleSelectUpdate(value: any) {
+  props.applyParams(value);
+}
 </script>
 
 <template>
@@ -54,7 +89,7 @@ const activeSection = ref('general')
                     min="2" 
                     max="12" 
                     v-model.number="props.params.circleCount" 
-                    @input="props.applyParams" 
+                    @input="(e) => handleInput(e, props.applyParams)" 
                   />
                   <span>{{ props.params.circleCount }}</span>
                 </div>
@@ -62,7 +97,7 @@ const activeSection = ref('general')
 
               <div>
                 <label>Rotation des cercles</label>
-                <Select v-model="props.params.rotationMode" @update:modelValue="props.applyParams">
+                <Select v-model="props.params.rotationMode" @update:modelValue="handleSelectUpdate">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -79,7 +114,7 @@ const activeSection = ref('general')
                 <input 
                   type="color" 
                   v-model="props.params.circleColor" 
-                  @input="props.applyParams" 
+                  @input="(e) => handleInput(e, props.applyParams)" 
                 />
               </div>
 
@@ -88,7 +123,7 @@ const activeSection = ref('general')
                 <input 
                   type="color" 
                   v-model="props.params.ballColor" 
-                  @input="props.applyParams"
+                  @input="(e) => handleInput(e, props.applyParams)"
                 />
               </div>
             </div>
@@ -107,7 +142,7 @@ const activeSection = ref('general')
                     min="10" 
                     max="120" 
                     v-model.number="props.params.initGap" 
-                    @input="props.applyParams" 
+                    @input="(e) => handleInput(e, props.applyParams)" 
                   />
                   <span>{{ props.params.initGap }}px</span>
                 </div>
@@ -121,7 +156,7 @@ const activeSection = ref('general')
                     min="6" 
                     max="32" 
                     v-model.number="props.params.ballRadius" 
-                    @input="props.applyParams" 
+                    @input="(e) => handleInput(e, props.applyParams)" 
                   />
                   <span>{{ props.params.ballRadius }}px</span>
                 </div>
@@ -135,7 +170,7 @@ const activeSection = ref('general')
                     min="4" 
                     max="40" 
                     v-model.number="props.params.circleWidth" 
-                    @input="props.applyParams" 
+                    @input="(e) => handleInput(e, props.applyParams)" 
                   />
                   <span>{{ props.params.circleWidth }}px</span>
                 </div>
@@ -150,7 +185,7 @@ const activeSection = ref('general')
                     max="0.05" 
                     step="0.001" 
                     v-model.number="props.params.rotateSpeed" 
-                    @input="props.applyParams" 
+                    @input="(e) => handleInput(e, props.applyParams)" 
                   />
                   <span>{{ props.params.rotateSpeed.toFixed(3) }}</span>
                 </div>
@@ -183,7 +218,7 @@ const activeSection = ref('general')
                       max="0.5" 
                       step="0.01" 
                       v-model.number="props.params.gravity" 
-                      @input="props.applyParams" 
+                      @input="(e) => handleInput(e, props.applyParams)" 
                     />
                     <span>{{ props.params.gravity.toFixed(2) }}</span>
                   </div>
@@ -198,7 +233,7 @@ const activeSection = ref('general')
                       max="3" 
                       step="0.01" 
                       v-model.number="props.params.gravityPower" 
-                      @input="props.applyParams" 
+                      @input="(e) => handleInput(e, props.applyParams)" 
                     />
                     <span>{{ props.params.gravityPower.toFixed(2) }}</span>
                   </div>
@@ -213,7 +248,7 @@ const activeSection = ref('general')
     <SidebarFooter>
       <div>
         <span>App TikTok - Mini-jeu</span>
-        <button @click="props.applyParams">Appliquer</button>
+        <button @click="(e) => handleClick(e, props.applyParams)">Appliquer</button>
       </div>
     </SidebarFooter>
   </Sidebar>
